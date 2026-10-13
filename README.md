@@ -15,7 +15,7 @@ From invert syrup to maltitol, sweeteners often appear on labels under unfamilia
 The detector has two parts:
 
 1. **Sweetener detection from text**: each ingredient is cleaned with spaCy and regular expressions, vectorised with TF-IDF and classified as sweetener or non-sweetener by a Random Forest classifier.
-2. **OCR integration**: an image of the ingredient list is preprocessed with OpenCV, the text is extracted with Tesseract OCR and passed to the classifier, and detected sweeteners are marked on the image with bounding boxes.
+2. **OCR integration**: an image of the ingredient list is loaded with OpenCV, the text is extracted with Tesseract OCR and passed to the classifier, and detected sweeteners are marked on the image with bounding boxes.
 
 ## Data
 
@@ -36,13 +36,32 @@ The tuned Random Forest classifier (`n_estimators=451`, `min_samples_split=6`) r
 ```bash
 git clone https://github.com/bhawakshi-punia/sweet_truth.git
 cd sweet_truth
-pip install -r requirements.txt
-python -m spacy download en_core_web_sm
+uv sync --all-extras
 ```
 
-`pytesseract` also needs [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) installed on your system (for example `brew install tesseract` on macOS).
+This uses [uv](https://docs.astral.sh/uv/) and installs everything, including the spaCy model, into `.venv`. Without uv, `pip install -r requirements.txt` in a virtual environment does the same.
 
-## Usage
+Reading text from photos needs Tesseract's English language data (`eng.traineddata`). Installing [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) provides it (for example `brew install tesseract` on macOS or `apt install tesseract-ocr` on Debian/Ubuntu). If it is somewhere unusual, set `SWEET_TRUTH_TESSDATA_DIR` to the folder that contains it.
+
+## Web app
+
+```bash
+uv run sweet-truth serve
+```
+
+Then open http://127.0.0.1:8000. Type or paste an ingredient list, or take or upload a photo of a pack: the sweeteners are highlighted in the text and boxed on the photo. Photos are processed in memory and are not stored.
+
+To try it from a phone on the same Wi-Fi, run `uv run sweet-truth serve --host 0.0.0.0` and open `http://<your computer's IP address>:8000` on the phone.
+
+The same detector is available from the command line:
+
+```bash
+uv run sweet-truth text "Glucose, Honey, Salt, Vitamins, Minerals"
+uv run sweet-truth image images/children_nutrition_drink.jpg
+uv run sweet-truth evaluate images/     # summary for every image in a folder
+```
+
+## Usage in Python
 
 Run the following from the repository root.
 
@@ -94,24 +113,36 @@ The annotated image is saved next to the input, so `image.jpg` produces `image_a
 │   ├── ocr.ipynb                           # Part 2: OCR on ingredient images
 │   └── the_sweet_truth_detector.ipynb      # Parts 1 + 2: full pipeline, image to annotated output
 ├── src/
-│   └── module_detector.py                  # preprocessing, classification, OCR and annotation functions
+│   ├── sweet_truth/                        # the detector as a package
+│   │   ├── text.py                         # split, clean and classify an ingredient list
+│   │   ├── ocr.py                          # read words from an image with Tesseract
+│   │   ├── image.py                        # photo to sweeteners and their positions
+│   │   ├── api.py                          # FastAPI app serving the API and the web page
+│   │   ├── cli.py                          # the sweet-truth command
+│   │   └── config.py, schemas.py, errors.py
+│   └── module_detector.py                  # notebook-friendly functions built on the package
+├── web/                                    # the web page (plain HTML, CSS and JavaScript)
+├── tests/                                  # pytest suite
 ├── models/
 │   └── sweet_truth_detector.pkl            # trained Random Forest pipeline
 ├── images/                                 # example inputs and annotated outputs
+├── pyproject.toml, uv.lock                 # dependencies
 └── requirements.txt
 ```
+
+Run the tests with `uv run pytest` and the linter with `uv run ruff check`.
 
 The notebooks use paths relative to `notebooks/`, so run them from that folder. The model was saved with scikit-learn 1.5.2; loading it with another version may raise warnings.
 
 ## Limitations and next steps
 
-- OCR sometimes over-annotates, for example boxing "Sodium" when the sweetener is part of a longer name such as "Trisodium".
+- Text printed after the ingredient list (for example "Contains naturally occurring sugars") is read as part of the list and can be flagged.
 - Results depend on a clear, well-lit photo of the ingredient list.
-- Next: expand the sweetener alias list and deploy as a web app.
+- Next: host the web app publicly, expand the sweetener alias list, and explore live camera scanning.
 
 ## Tech stack
 
-Python · scikit-learn (Random Forest, TF-IDF) · spaCy · regular expressions · Tesseract OCR · OpenCV · Jupyter
+Python · scikit-learn (Random Forest, TF-IDF) · spaCy · regular expressions · Tesseract OCR · OpenCV · FastAPI · Typer · Jupyter
 
 ## Image sources
 

@@ -1,10 +1,3 @@
-numpy
-pandas
-matplotlib
-seaborn
-scikit-learn==1.5.2
-joblib
-spacy
-opencv-python
-pytesseract
-jupyterlab
+# Everything the notebooks need, including the sweet_truth package itself.
+# With uv: `uv sync --all-extras` does the same from pyproject.toml / uv.lock.
+-e .[notebooks]

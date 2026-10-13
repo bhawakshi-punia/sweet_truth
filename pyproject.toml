@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sweet-truth"
+version = "0.1.0"
+description = "Detect hidden sweeteners in packaged food ingredient lists, from text or a photo."
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+authors = [{ name = "Bhawakshi Punia" }]
+dependencies = [
+    "scikit-learn==1.5.2",
+    "joblib>=1.4",
+    "numpy>=1.26",
+    "spacy>=3.8,<3.9",
+    "en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
+    "opencv-python-headless>=4.10",
+    "tesserocr>=2.8",
+    "fastapi>=0.115",
+    "uvicorn>=0.32",
+    "python-multipart>=0.0.12",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx2", "ruff>=0.7"]
+notebooks = ["pandas", "matplotlib", "seaborn", "jupyterlab", "pytesseract"]
+
+[project.scripts]
+sweet-truth = "sweet_truth.cli:app"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sweet_truth"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+extend-exclude = ["notebooks", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Notebook-facing module: star-imported by the notebooks, kept in its original style.
+"src/module_detector.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
