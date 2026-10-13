@@ -7,3 +7,5 @@ venv/
 .pytest_cache/
 .ruff_cache/
 *.egg-info/
+
+HANDOFF.md
