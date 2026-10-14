@@ -4,14 +4,38 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Sweet Truth Detector</title>
-  <meta name="description" content="Find hidden sweeteners in a packaged food's ingredient list, from typed text or a photo of the pack.">
+  <meta name="description" content="Find the sweeteners hiding in a packaged food's ingredient list, from typed text or a photo of the pack.">
+  <meta name="theme-color" content="#f8f5ee">
+
+  <!-- Link previews when the page is shared -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Sweet Truth Detector">
+  <meta property="og:description" content="Type or photograph an ingredient list and see the sweeteners hiding in it.">
+  <meta property="og:image" content="og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The Sweet Truth Detector: an ingredient list with its sweeteners highlighted">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Lora:ital,wght@0,400;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // Apply the saved theme before the page paints, so it never flashes the wrong one.
+    try { if (localStorage.getItem("theme") === "dark") document.documentElement.classList.add("dark"); } catch {}
+  </script>
 </head>
 <body>
   <main class="page">
+    <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to dark theme">
+      <span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-label">Dark</span>
+    </button>
+
     <header class="masthead">
-      <h1>The Sweet Truth Detector</h1>
-      <p>Find the sweeteners hiding in an ingredient list.</p>
+      <h1>The <em>Sweet</em> Truth Detector</h1>
+      <p class="tagline">From invert syrup to maltitol, sweeteners hide behind unfamiliar names. Give it an ingredient list and it points out every one.</p>
     </header>
 
     <p id="offline" class="notice error" hidden>
@@ -19,30 +43,11 @@
     </p>
 
     <div class="tabs" role="tablist" aria-label="How to give the ingredient list">
-      <button id="tab-text" role="tab" aria-selected="true" aria-controls="panel-text">Type</button>
-      <button id="tab-photo" role="tab" aria-selected="false" aria-controls="panel-photo" tabindex="-1">Photo</button>
+      <button id="tab-photo" role="tab" aria-selected="true" aria-controls="panel-photo">Photo</button>
+      <button id="tab-text" role="tab" aria-selected="false" aria-controls="panel-text" tabindex="-1">Type</button>
     </div>
 
-    <section id="panel-text" role="tabpanel" aria-labelledby="tab-text">
-      <p class="hint">Paste or type the ingredients from any pack.</p>
-      <form id="text-form">
-        <label for="text-input" class="visually-hidden">Ingredient list</label>
-        <textarea id="text-input" rows="6" maxlength="5000"
-          placeholder="Wheat Flour, Sugar, Edible Vegetable Oil, Invert Syrup, Liquid Glucose, Milk Solids, Iodised Salt, Raising Agents (INS 500(ii))"></textarea>
-        <div class="actions">
-          <button type="submit" class="primary">Find sweeteners</button>
-          <button type="button" id="text-example" class="link">Use this example</button>
-        </div>
-      </form>
-      <p id="text-status" class="notice" role="status" hidden></p>
-      <div id="text-result" class="result" hidden>
-        <h2 class="summary"></h2>
-        <p class="highlighted"></p>
-        <ul class="sweeteners"></ul>
-      </div>
-    </section>
-
-    <section id="panel-photo" role="tabpanel" aria-labelledby="tab-photo" hidden>
+    <section id="panel-photo" role="tabpanel" aria-labelledby="tab-photo">
       <p class="hint">Take a clear, well-lit photo of the pack. Next you crop it to the ingredient list, then it is checked.</p>
       <div class="actions">
         <label class="button primary">
@@ -57,7 +62,7 @@
 
       <button type="button" id="photo-example" class="example">
         <img src="samples/children_nutrition_drink.jpg" alt="Ingredient list printed on a nutrition drink pack">
-        <span>Try this photo</span>
+        <span><i>Try this photo</i></span>
       </button>
 
       <dialog id="photo-crop" aria-labelledby="crop-title">
@@ -104,20 +109,84 @@
       </div>
     </section>
 
+    <section id="panel-text" role="tabpanel" aria-labelledby="tab-text" hidden>
+      <p class="hint">Paste or type the ingredients from any pack.</p>
+      <form id="text-form">
+        <label for="text-input" class="visually-hidden">Ingredient list</label>
+        <textarea id="text-input" rows="6" maxlength="5000"
+          placeholder="Wheat Flour, Sugar, Edible Vegetable Oil, Invert Syrup, Liquid Glucose, Milk Solids, Iodised Salt, Raising Agents (INS 500(ii))"></textarea>
+        <div class="actions">
+          <button type="submit" class="primary">Find sweeteners</button>
+          <button type="button" id="text-example" class="link">Use this example</button>
+        </div>
+      </form>
+      <p id="text-status" class="notice" role="status" hidden></p>
+      <div id="text-result" class="result" hidden>
+        <h2 class="summary"></h2>
+        <p class="highlighted"></p>
+        <ul class="sweeteners"></ul>
+      </div>
+    </section>
+
+    <details class="how">
+      <summary>
+        <span>How does it work?</span>
+        <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <ol class="flow">
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <b>Snap or type</b>
+          <span>the ingredient list</span>
+        </li>
+        <li class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15m-5-5 5 5-5 5"/></svg></li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/><circle cx="19" cy="18" r="2.2"/></svg>
+          <b>Check</b>
+          <span>each ingredient</span>
+        </li>
+        <li class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15m-5-5 5 5-5 5"/></svg></li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 4 6 6-8 8H6v-6z"/><path d="M4 21h16"/></svg>
+          <b>Highlight</b>
+          <span>the sweeteners</span>
+        </li>
+      </ol>
+      <p class="how-note">Your photos are never stored. Curious about the details? Read the
+        <a href="https://bhawakshi-punia.github.io/#projects/sweet-truth" target="_blank" rel="noopener">case study ↗</a>
+        or the <a href="https://github.com/bhawakshi-punia/sweet_truth" target="_blank" rel="noopener">source code ↗</a>.</p>
+    </details>
+
+    <section class="author" aria-labelledby="author-title">
+      <img src="assets/profile.jpg" alt="" width="72" height="72">
+      <div>
+        <p class="author-kicker">Made by</p>
+        <h2 id="author-title">Dr. Bhawakshi <em>Punia</em></h2>
+        <p class="author-role">AI &amp; Computational Scientist</p>
+        <p class="author-links">
+          <a href="https://bhawakshi-punia.github.io/" target="_blank" rel="noopener">Portfolio ↗</a>
+          <a class="icon-link" href="https://www.linkedin.com/in/dr-bhawakshi-punia-110a81298/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a class="icon-link" href="https://github.com/bhawakshi-punia" target="_blank" rel="noopener" aria-label="GitHub">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+          </a>
+        </p>
+      </div>
+    </section>
+
     <footer>
-      <details>
-        <summary>How it works</summary>
+      <p class="fine">For information only, not dietary or medical advice. The model can miss sweeteners or flag ingredients that are not.</p>
+      <details class="reveal">
+        <summary>psst… how was this built?</summary>
         <p>
-          Each ingredient is cleaned and passed to a machine learning model trained to tell
-          sweeteners from other ingredients. For photos, the text is first read from the image.
-          Photos are processed in memory and are not stored.
+          The model and its training data are my own work. The web app around it, from the
+          photo reading to this page, was planned and coded together with
+          <a href="https://www.anthropic.com/claude" target="_blank" rel="noopener">Claude</a>,
+          Anthropic's AI, in Claude Code. I set the direction and made the calls; Claude did
+          much of the typing.
         </p>
       </details>
-      <p>
-        <a href="https://bhawakshi-punia.github.io/#projects/sweet-truth" target="_blank" rel="noopener">Case study</a> ·
-        <a href="https://github.com/bhawakshi-punia/sweet_truth" target="_blank" rel="noopener">Source on GitHub</a>
-      </p>
-      <p class="fine">For information only, not dietary or medical advice. The model can miss sweeteners or flag ingredients that are not.</p>
     </footer>
   </main>
   <script src="app.js" defer></script>

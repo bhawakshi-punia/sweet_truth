@@ -114,7 +114,7 @@ function renderBoxes(svg, result) {
 
 /** Disable the page's controls while `work` runs. */
 async function busy(statusElement, message, work) {
-  const controls = document.querySelectorAll("main button, main input, main textarea");
+  const controls = document.querySelectorAll("main button:not(#theme-toggle), main input, main textarea");
   const wasDisabled = new Map([...controls].map((c) => [c, c.disabled]));
   controls.forEach((control) => (control.disabled = true));
   document.querySelectorAll("label.button").forEach((l) => l.setAttribute("aria-disabled", "true"));
@@ -129,7 +129,7 @@ async function busy(statusElement, message, work) {
 
 // ---------- tabs ----------
 
-const tabs = [$("#tab-text"), $("#tab-photo")];
+const tabs = [$("#tab-photo"), $("#tab-text")];
 
 function selectTab(selected) {
   for (const tab of tabs) {
@@ -400,6 +400,28 @@ $("#recheck-form").addEventListener("submit", async (event) => {
     }
   });
 });
+
+// ---------- theme ----------
+
+const themeToggle = $("#theme-toggle");
+
+function paintThemeToggle() {
+  const dark = document.documentElement.classList.contains("dark");
+  $(".theme-icon", themeToggle).textContent = dark ? "☀️" : "🌙";
+  $(".theme-label", themeToggle).textContent = dark ? "Light" : "Dark";
+  themeToggle.setAttribute("aria-label", `Switch to ${dark ? "light" : "dark"} theme`);
+}
+
+themeToggle.addEventListener("click", () => {
+  const dark = document.documentElement.classList.toggle("dark");
+  try {
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  } catch {
+    // Storage can be unavailable (private browsing); the theme then lasts until reload.
+  }
+  paintThemeToggle();
+});
+paintThemeToggle();
 
 // ---------- startup ----------
 
