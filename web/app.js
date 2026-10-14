@@ -17,6 +17,11 @@ const NO_HEADING_NOTE =
 
 // ---------- talking to the server ----------
 
+// Where the detector runs. Empty means the same site as this page; the published page
+// sets it in config.js, because the page and the detector are hosted separately.
+const API_BASE = (window.SWEET_TRUTH_API || "").replace(/\/$/, "");
+const OFFLINE_MESSAGE = "The detector is not reachable. Check your connection and try again.";
+
 class ApiError extends Error {
   constructor(message, body = {}) {
     super(message);
@@ -25,11 +30,12 @@ class ApiError extends Error {
 }
 
 async function request(path, options) {
+  if (!(await detectorAwake())) throw new ApiError(OFFLINE_MESSAGE);
   let response;
   try {
-    response = await fetch(path, options);
+    response = await fetch(API_BASE + path, options);
   } catch {
-    throw new ApiError("The detector is not reachable. Check your connection and try again.");
+    throw new ApiError(OFFLINE_MESSAGE);
   }
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -423,6 +429,66 @@ themeToggle.addEventListener("click", () => {
 });
 paintThemeToggle();
 
-// ---------- startup ----------
+// ---------- waking the detector ----------
 
-request("/api/health").catch(() => ($("#offline").hidden = false));
+// The free hosting puts the detector to sleep after a couple of idle days, and the first
+// visit after that wakes it, which takes up to a minute. Say so instead of looking broken.
+const WAKING_HINT_DELAY = 1500; // ms before a slow answer counts as "waking up"
+const WAKING_POLL_INTERVAL = 4000;
+const WAKING_GIVE_UP = 4 * 60 * 1000;
+
+const waking = $("#waking");
+let wakingClock = null;
+
+function showWaking(show) {
+  if (show === !waking.hidden) return;
+  waking.hidden = !show;
+  clearInterval(wakingClock);
+  if (!show) return;
+  const started = Date.now();
+  const elapsed = $(".waking-elapsed", waking);
+  elapsed.textContent = "";
+  wakingClock = setInterval(() => {
+    elapsed.textContent = `${Math.round((Date.now() - started) / 1000)} s`;
+  }, 1000);
+}
+
+async function healthy() {
+  try {
+    const response = await fetch(`${API_BASE}/api/health`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(15000),
+    });
+    return response.ok && (await response.json()).status === "ok";
+  } catch {
+    return false; // still asleep or starting: no answer, or the host's own holding page
+  }
+}
+
+async function waitForDetector() {
+  const started = Date.now();
+  const hint = setTimeout(() => showWaking(true), WAKING_HINT_DELAY);
+  try {
+    while (Date.now() - started < WAKING_GIVE_UP) {
+      if (await healthy()) {
+        $("#offline").hidden = true;
+        return true;
+      }
+      showWaking(true);
+      await new Promise((resolve) => setTimeout(resolve, WAKING_POLL_INTERVAL));
+    }
+    $("#offline").hidden = false;
+    return false;
+  } finally {
+    clearTimeout(hint);
+    showWaking(false);
+  }
+}
+
+let detectorCheck = waitForDetector();
+
+/** Resolves true once the detector answers; checks again if it had given up before. */
+async function detectorAwake() {
+  if (!(await detectorCheck)) detectorCheck = waitForDetector();
+  return detectorCheck;
+}

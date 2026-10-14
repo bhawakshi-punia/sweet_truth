@@ -6,12 +6,14 @@ from contextlib import asynccontextmanager
 from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from sweet_truth.config import Settings
 from sweet_truth.errors import DetectionError
 from sweet_truth.image import detect_from_image
+from sweet_truth.ratelimit import RateLimiter
 from sweet_truth.schemas import Health, ImageResult, TextRequest, TextResult
 from sweet_truth.text import Resources, classify_ingredients, load_resources
 
@@ -39,8 +41,32 @@ def get_settings(request: Request) -> Settings:
     return request.app.state.settings
 
 
+def visitor_address(request: Request, settings: Settings) -> str:
+    if settings.trust_forwarded_for:
+        # The first address is the visitor's as the proxy received it. A visitor can forge
+        # it to dodge the limit, which is acceptable for a courtesy limit like this one.
+        forwarded = request.headers.get("x-forwarded-for", "")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def check_rate_limit(request: Request) -> None:
+    limiter: RateLimiter | None = request.app.state.rate_limiter
+    if limiter is None:
+        return
+    wait = limiter.retry_after(visitor_address(request, request.app.state.settings))
+    if wait:
+        raise HTTPException(
+            429,
+            "Too many checks in a short time. Please wait a moment and try again.",
+            headers={"Retry-After": str(max(1, round(wait)))},
+        )
+
+
 ResourcesDep = Annotated[Resources, Depends(get_resources)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
+RateLimited = Depends(check_rate_limit)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -48,7 +74,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        app.state.settings = settings
         app.state.resources = load_resources(settings)
         logger.info("Ready, model %s", app.state.resources.model_version)
         yield
@@ -56,6 +81,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             app.state.resources.ocr.close()
 
     app = FastAPI(title="The Sweet Truth Detector", lifespan=lifespan)
+    app.state.settings = settings
+    app.state.rate_limiter = (
+        RateLimiter(settings.rate_limit_per_minute) if settings.rate_limit_per_minute else None
+    )
+    if settings.cors_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=settings.cors_origins,
+            allow_methods=["GET", "POST"],
+            allow_headers=["Content-Type"],
+            max_age=3600,
+        )
 
     @app.exception_handler(DetectionError)
     def detection_error(request: Request, error: DetectionError) -> JSONResponse:
@@ -71,7 +108,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def health(resources: ResourcesDep) -> Health:
         return Health(status="ok", model_version=resources.model_version)
 
-    @app.post("/api/detect/text")
+    @app.post("/api/detect/text", dependencies=[RateLimited])
     def detect_text(
         body: TextRequest, resources: ResourcesDep, settings: SettingsDep
     ) -> TextResult:
@@ -82,7 +119,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         return classify_ingredients(body.text, resources)
 
-    @app.post("/api/detect/image")
+    @app.post("/api/detect/image", dependencies=[RateLimited])
     def detect_image(
         image: Annotated[UploadFile, File()], resources: ResourcesDep, settings: SettingsDep
     ) -> ImageResult:

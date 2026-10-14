@@ -17,6 +17,15 @@ class Settings(BaseSettings):
     # Folder holding eng.traineddata. Left unset, common install locations are searched.
     tessdata_dir: Path | None = None
 
+    # Sites allowed to call the API from a browser, e.g. ["https://bhawakshi-punia.github.io"].
+    # Set as JSON in SWEET_TRUTH_CORS_ORIGINS. Empty means same-site only.
+    cors_origins: list[str] = []
+    # Detector calls allowed per visitor per minute; 0 turns the limit off.
+    rate_limit_per_minute: int = 20
+    # Behind a hosting proxy (as on Hugging Face) the visitor's address arrives in the
+    # X-Forwarded-For header. Only trust it when such a proxy is in front of the app.
+    trust_forwarded_for: bool = False
+
     max_text_chars: int = 5_000
     max_upload_bytes: int = 8 * 1024 * 1024
     max_image_pixels: int = 40_000_000

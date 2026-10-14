@@ -158,6 +158,22 @@ button.link {
   font-family: var(--font-hand); font-size: 1.5rem; font-style: normal; font-weight: 700; color: var(--pen);
 }
 
+/* ---------- detector waking up ---------- */
+.waking {
+  display: flex; gap: 14px; align-items: flex-start; margin-bottom: 20px; padding: 14px 16px;
+  border: 1px solid var(--accent); border-radius: var(--radius); background: var(--bg2);
+  box-shadow: 0 0 0 4px var(--glow);
+}
+.waking-title { font-family: var(--font-heading); font-size: 1.15rem; color: var(--text); margin-bottom: 4px; }
+.waking-elapsed { font-family: var(--font-body); font-size: .8rem; color: var(--text3); font-variant-numeric: tabular-nums; }
+.waking p:not(.waking-title) { color: var(--text2); font-size: .9rem; line-height: 1.5; }
+.waking-dots { display: flex; gap: 5px; padding-top: 9px; }
+.waking-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: nap 1.2s ease-in-out infinite; }
+.waking-dots i:nth-child(2) { animation-delay: .15s; }
+.waking-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes nap { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .waking-dots i { animation: none; opacity: .7; } }
+
 /* ---------- status ---------- */
 .notice {
   margin-top: 16px; padding: 10px 14px; border-left: 2px solid var(--accent);

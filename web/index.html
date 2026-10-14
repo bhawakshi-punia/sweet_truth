@@ -11,7 +11,8 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="The Sweet Truth Detector">
   <meta property="og:description" content="Type or photograph an ingredient list and see the sweeteners hiding in it.">
-  <meta property="og:image" content="og-image.png">
+  <meta property="og:url" content="https://bhawakshi-punia.github.io/sweet_truth/">
+  <meta property="og:image" content="https://bhawakshi-punia.github.io/sweet_truth/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="The Sweet Truth Detector: an ingredient list with its sweeteners highlighted">
@@ -38,8 +39,17 @@
       <p class="tagline">From invert syrup to maltitol, sweeteners hide behind unfamiliar names. Give it an ingredient list and it points out every one.</p>
     </header>
 
+    <div id="waking" class="waking" role="status" hidden>
+      <span class="waking-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <div>
+        <p class="waking-title">Waking up the detector… <span class="waking-elapsed"></span></p>
+        <p>It naps when nobody has visited for a while, and takes up to a minute to start.
+          You can get your photo or list ready in the meantime; it will be checked as soon as it is awake.</p>
+      </div>
+    </div>
+
     <p id="offline" class="notice error" hidden>
-      The detector is not reachable right now. Check your connection and reload the page.
+      The detector is not reachable right now. Check your connection and try again in a little while.
     </p>
 
     <div class="tabs" role="tablist" aria-label="How to give the ingredient list">
@@ -189,6 +199,7 @@
       </details>
     </footer>
   </main>
+  <script src="config.js"></script>
   <script src="app.js" defer></script>
 </body>
 </html>

@@ -68,3 +68,30 @@ def test_frontend_is_served(client: TestClient):
     # Browsers must re-check for a newer page instead of showing a cached one.
     assert response.headers["cache-control"] == "no-cache"
     assert client.get("/app.js").headers["cache-control"] == "no-cache"
+
+
+def test_detector_calls_are_rate_limited_per_visitor():
+    settings = Settings(rate_limit_per_minute=2, trust_forwarded_for=True)
+    with TestClient(create_app(settings)) as limited:
+        body = {"text": "Sugar, Salt"}
+        visitor_a = {"X-Forwarded-For": "203.0.113.1, 10.0.0.1"}
+        visitor_b = {"X-Forwarded-For": "203.0.113.2"}
+        for _ in range(2):
+            assert limited.post("/api/detect/text", json=body, headers=visitor_a).status_code == 200
+        blocked = limited.post("/api/detect/text", json=body, headers=visitor_a)
+        assert blocked.status_code == 429
+        assert int(blocked.headers["retry-after"]) >= 1
+        # Another visitor is unaffected, and the health check is never limited.
+        assert limited.post("/api/detect/text", json=body, headers=visitor_b).status_code == 200
+        assert limited.get("/api/health", headers=visitor_a).status_code == 200
+
+
+def test_browser_calls_allowed_only_from_configured_sites():
+    settings = Settings(cors_origins=["https://bhawakshi-punia.github.io"])
+    with TestClient(create_app(settings)) as cross_site:
+        allowed = cross_site.get(
+            "/api/health", headers={"Origin": "https://bhawakshi-punia.github.io"}
+        )
+        assert allowed.headers["access-control-allow-origin"] == "https://bhawakshi-punia.github.io"
+        other = cross_site.get("/api/health", headers={"Origin": "https://example.com"})
+        assert "access-control-allow-origin" not in other.headers

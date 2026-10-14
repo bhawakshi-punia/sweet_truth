@@ -1,0 +1,36 @@
+# Publishes the detector API to its Hugging Face Space.
+# Needs: repository secret HF_TOKEN (a Hugging Face token with write access)
+# and repository variable HF_SPACE (e.g. "your-hf-username/sweet-truth").
+name: Deploy detector
+
+on:
+  push:
+    branches: [main]
+    paths: [src/**, models/**, web/**, pyproject.toml, uv.lock, Dockerfile, deploy/**]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-detector
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Gather the files the Space needs
+        run: |
+          mkdir space
+          cp -r src models web pyproject.toml uv.lock Dockerfile .dockerignore space/
+          cp deploy/space-readme.md space/README.md
+
+      - name: Upload to the Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: >
+          uvx --from "huggingface_hub>=0.34" hf upload "${{ vars.HF_SPACE }}" space .
+          --repo-type space --delete "*"
+          --commit-message "Deploy ${{ github.sha }}"

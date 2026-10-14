@@ -1,0 +1,44 @@
+# Publishes the web page to GitHub Pages, pointed at the detector on Hugging Face.
+# Needs: Settings > Pages > Source set to "GitHub Actions", and repository variable
+# DETECTOR_URL (the Space's address, e.g. "https://your-hf-username-sweet-truth.hf.space").
+name: Deploy page
+
+on:
+  push:
+    branches: [main]
+    paths: [web/**]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Point the page at the detector
+        env:
+          DETECTOR_URL: ${{ vars.DETECTOR_URL }}
+        run: |
+          test -n "$DETECTOR_URL" || { echo "Set the DETECTOR_URL repository variable"; exit 1; }
+          printf 'window.SWEET_TRUTH_API = "%s";\n' "$DETECTOR_URL" > web/config.js
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
