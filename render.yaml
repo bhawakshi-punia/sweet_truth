@@ -1,0 +1,10 @@
+# Render blueprint: the detector API as a free web service, rebuilt on every push to main.
+# Create it in Render with New > Blueprint and pick this repository.
+services:
+  - type: web
+    name: sweet-truth
+    runtime: docker
+    plan: free
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /api/health

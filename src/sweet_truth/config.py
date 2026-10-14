@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = []
     # Detector calls allowed per visitor per minute; 0 turns the limit off.
     rate_limit_per_minute: int = 20
-    # Behind a hosting proxy (as on Hugging Face) the visitor's address arrives in the
+    # Behind a hosting proxy (as on Render) the visitor's address arrives in the
     # X-Forwarded-For header. Only trust it when such a proxy is in front of the app.
     trust_forwarded_for: bool = False
 

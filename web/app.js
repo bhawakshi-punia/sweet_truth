@@ -431,8 +431,8 @@ paintThemeToggle();
 
 // ---------- waking the detector ----------
 
-// The free hosting puts the detector to sleep after a couple of idle days, and the first
-// visit after that wakes it, which takes up to a minute. Say so instead of looking broken.
+// The free hosting puts the detector to sleep when nobody has used it for a while, and the
+// first visit after that wakes it, which takes up to a minute. Say so instead of looking broken.
 const WAKING_HINT_DELAY = 1500; // ms before a slow answer counts as "waking up"
 const WAKING_POLL_INTERVAL = 4000;
 const WAKING_GIVE_UP = 4 * 60 * 1000;

@@ -1,5 +1,6 @@
 .git
 .github
+render.yaml
 .venv
 .pytest_cache
 .ruff_cache

@@ -1,6 +1,6 @@
-# Publishes the web page to GitHub Pages, pointed at the detector on Hugging Face.
+# Publishes the web page to GitHub Pages, pointed at the detector on Render.
 # Needs: Settings > Pages > Source set to "GitHub Actions", and repository variable
-# DETECTOR_URL (the Space's address, e.g. "https://your-hf-username-sweet-truth.hf.space").
+# DETECTOR_URL (the detector's address on Render, e.g. "https://sweet-truth.onrender.com").
 name: Deploy page
 
 on:

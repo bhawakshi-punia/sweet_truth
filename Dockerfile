@@ -1,4 +1,4 @@
-# The detector API as run on Hugging Face Spaces (Docker SDK, port 7860).
+# The detector API as run on Render (free web service). Works on any Docker host.
 FROM python:3.12-slim
 
 # Tesseract's English language data. The tesserocr wheel brings the library itself.
@@ -8,7 +8,7 @@ RUN apt-get update \
 
 COPY --from=ghcr.io/astral-sh/uv:0.13.0 /uv /usr/local/bin/uv
 
-# Spaces run the container as user 1000.
+# Run as an ordinary user, not root.
 RUN useradd --create-home --uid 1000 user
 USER user
 ENV HOME=/home/user \
@@ -30,5 +30,7 @@ RUN uv sync --frozen
 ENV SWEET_TRUTH_CORS_ORIGINS='["https://bhawakshi-punia.github.io"]' \
     SWEET_TRUTH_TRUST_FORWARDED_FOR=true
 
-EXPOSE 7860
-CMD ["sweet-truth", "serve", "--host", "0.0.0.0", "--port", "7860"]
+# The host says which port to listen on through $PORT.
+ENV PORT=10000
+EXPOSE 10000
+CMD ["sh", "-c", "exec sweet-truth serve --host 0.0.0.0 --port \"$PORT\""]
