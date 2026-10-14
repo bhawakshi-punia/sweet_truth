@@ -2,6 +2,8 @@
 
 A machine learning pipeline that detects hidden sweeteners in packaged food ingredient lists. It combines OCR, text preprocessing and a classifier to find and highlight sweeteners, from typed text or from a photo of the packaging.
 
+**Try it live:** [bhawakshi-punia.github.io/sweet_truth](https://bhawakshi-punia.github.io/sweet_truth/), on your phone or computer
+
 **Case study:** [bhawakshi-punia.github.io/#projects/sweet-truth](https://bhawakshi-punia.github.io/#projects/sweet-truth)
 
 ![Annotated ingredient list with detected sweeteners](https://github.com/user-attachments/assets/281466a3-422c-4427-bff0-44b2e65361a7)
@@ -44,6 +46,10 @@ This uses [uv](https://docs.astral.sh/uv/) and installs everything, including th
 Reading text from photos needs Tesseract's English language data (`eng.traineddata`). Installing [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) provides it (for example `brew install tesseract` on macOS or `apt install tesseract-ocr` on Debian/Ubuntu). If it is somewhere unusual, set `SWEET_TRUTH_TESSDATA_DIR` to the folder that contains it.
 
 ## Web app
+
+The app is live at [bhawakshi-punia.github.io/sweet_truth](https://bhawakshi-punia.github.io/sweet_truth/). The page is served by GitHub Pages and the detector runs on Render's free tier, which sleeps when unused, so the first check after a quiet spell can take up to a minute while it wakes. Both redeploy automatically on every push to `main`.
+
+To run it on your own computer:
 
 ```bash
 uv run sweet-truth serve
@@ -127,6 +133,8 @@ The annotated image is saved next to the input, so `image.jpg` produces `image_a
 │   └── sweet_truth_detector.pkl            # trained Random Forest pipeline
 ├── images/                                 # example inputs and annotated outputs
 ├── pyproject.toml, uv.lock                 # dependencies
+├── Dockerfile, render.yaml                # how the detector is hosted on Render
+├── .github/workflows/pages.yml           # publishes web/ to GitHub Pages
 └── requirements.txt
 ```
 
@@ -138,7 +146,7 @@ The notebooks use paths relative to `notebooks/`, so run them from that folder. 
 
 - Text printed after the ingredient list (for example "Contains naturally occurring sugars") is read as part of the list and can be flagged.
 - Results depend on a clear, well-lit photo of the ingredient list.
-- Next: host the web app publicly, expand the sweetener alias list, and explore live camera scanning.
+- Next: expand the sweetener alias list and explore live camera scanning.
 
 ## Tech stack
 

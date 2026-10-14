@@ -39,104 +39,106 @@
       <p class="tagline">From invert syrup to maltitol, sweeteners hide behind unfamiliar names. Give it an ingredient list and it points out every one.</p>
     </header>
 
-    <div id="waking" class="waking" role="status" hidden>
-      <span class="waking-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-      <div>
-        <p class="waking-title">Waking up the detector… <span class="waking-elapsed"></span></p>
-        <p>It naps when nobody has visited for a while, and takes up to a minute to start.
-          You can get your photo or list ready in the meantime; it will be checked as soon as it is awake.</p>
-      </div>
-    </div>
-
-    <p id="offline" class="notice error" hidden>
-      The detector is not reachable right now. Check your connection and try again in a little while.
-    </p>
-
-    <div class="tabs" role="tablist" aria-label="How to give the ingredient list">
-      <button id="tab-photo" role="tab" aria-selected="true" aria-controls="panel-photo">Photo</button>
-      <button id="tab-text" role="tab" aria-selected="false" aria-controls="panel-text" tabindex="-1">Type</button>
-    </div>
-
-    <section id="panel-photo" role="tabpanel" aria-labelledby="tab-photo">
-      <p class="hint">Take a clear, well-lit photo of the pack. Next you crop it to the ingredient list, then it is checked.</p>
-      <div class="actions">
-        <label class="button primary">
-          Take photo
-          <input id="photo-camera" type="file" accept="image/*" capture="environment" class="visually-hidden">
-        </label>
-        <label class="button">
-          Choose from gallery
-          <input id="photo-gallery" type="file" accept="image/*" class="visually-hidden">
-        </label>
+    <div class="tool">
+      <div id="waking" class="waking" role="status" hidden>
+        <span class="waking-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <div>
+          <p class="waking-title">Waking up the detector… <span class="waking-elapsed"></span></p>
+          <p>It naps when nobody has visited for a while, and takes up to a minute to start.
+            You can get your photo or list ready in the meantime; it will be checked as soon as it is awake.</p>
+        </div>
       </div>
 
-      <button type="button" id="photo-example" class="example">
-        <img src="samples/children_nutrition_drink.jpg" alt="Ingredient list printed on a nutrition drink pack">
-        <span><i>Try this photo</i></span>
-      </button>
+      <p id="offline" class="notice error" hidden>
+        The detector is not reachable right now. Check your connection and try again in a little while.
+      </p>
 
-      <dialog id="photo-crop" aria-labelledby="crop-title">
-        <header>
-          <h2 id="crop-title">Crop to the ingredient list</h2>
-          <p>Drag the corners until only the ingredients are inside the frame.</p>
-        </header>
-        <div class="crop-stage">
-          <div class="cropper">
-            <img alt="The photo you chose">
-            <div class="crop-frame">
-              <span class="crop-handle" data-corner="nw"></span>
-              <span class="crop-handle" data-corner="ne"></span>
-              <span class="crop-handle" data-corner="sw"></span>
-              <span class="crop-handle" data-corner="se"></span>
+      <div class="tabs" role="tablist" aria-label="How to give the ingredient list">
+        <button id="tab-photo" role="tab" aria-selected="true" aria-controls="panel-photo">Photo</button>
+        <button id="tab-text" role="tab" aria-selected="false" aria-controls="panel-text" tabindex="-1">Type</button>
+      </div>
+
+      <section id="panel-photo" role="tabpanel" aria-labelledby="tab-photo">
+        <p class="hint"><span class="touch-only">Take a clear, well-lit photo of the pack.</span><span class="pointer-only">Pick a clear, well-lit photo of the pack.</span> Next you crop it to the ingredient list, then it is checked.</p>
+        <div class="actions">
+          <label class="button primary touch-only">
+            Take photo
+            <input id="photo-camera" type="file" accept="image/*" capture="environment" class="visually-hidden">
+          </label>
+          <label class="button gallery">
+            <span class="touch-only">Choose from gallery</span><span class="pointer-only">Choose a photo</span>
+            <input id="photo-gallery" type="file" accept="image/*" class="visually-hidden">
+          </label>
+        </div>
+
+        <button type="button" id="photo-example" class="example">
+          <img src="samples/children_nutrition_drink.jpg" alt="Ingredient list printed on a nutrition drink pack">
+          <span><i>Try this photo</i></span>
+        </button>
+
+        <dialog id="photo-crop" aria-labelledby="crop-title">
+          <header>
+            <h2 id="crop-title">Crop to the ingredient list</h2>
+            <p>Drag the corners until only the ingredients are inside the frame.</p>
+          </header>
+          <div class="crop-stage">
+            <div class="cropper">
+              <img alt="The photo you chose">
+              <div class="crop-frame">
+                <span class="crop-handle" data-corner="nw"></span>
+                <span class="crop-handle" data-corner="ne"></span>
+                <span class="crop-handle" data-corner="sw"></span>
+                <span class="crop-handle" data-corner="se"></span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="actions">
-          <button type="button" id="crop-confirm" class="primary">Find sweeteners</button>
-          <button type="button" id="crop-skip">Skip cropping</button>
-          <button type="button" id="crop-cancel" class="link">Cancel</button>
-        </div>
-      </dialog>
-
-      <button type="button" id="crop-again" class="link" hidden>Adjust the crop on this photo</button>
-
-      <p id="photo-status" class="notice" role="status" hidden></p>
-      <div id="photo-result" class="result" hidden>
-        <h2 class="summary"></h2>
-        <div class="annotated">
-          <img alt="Your photo with the sweeteners marked">
-          <svg aria-hidden="true"></svg>
-        </div>
-        <ul class="sweeteners"></ul>
-        <form id="recheck-form" class="recheck">
-          <label for="photo-text">Text read from the photo. Fix any mistakes and check again.</label>
-          <textarea id="photo-text" rows="5" maxlength="5000"></textarea>
           <div class="actions">
-            <button type="submit">Re-check</button>
+            <button type="button" id="crop-confirm" class="primary">Find sweeteners</button>
+            <button type="button" id="crop-skip">Skip cropping</button>
+            <button type="button" id="crop-cancel" class="link">Cancel</button>
           </div>
-          <p class="highlighted" hidden></p>
-        </form>
-      </div>
-    </section>
+        </dialog>
 
-    <section id="panel-text" role="tabpanel" aria-labelledby="tab-text" hidden>
-      <p class="hint">Paste or type the ingredients from any pack.</p>
-      <form id="text-form">
-        <label for="text-input" class="visually-hidden">Ingredient list</label>
-        <textarea id="text-input" rows="6" maxlength="5000"
-          placeholder="Wheat Flour, Sugar, Edible Vegetable Oil, Invert Syrup, Liquid Glucose, Milk Solids, Iodised Salt, Raising Agents (INS 500(ii))"></textarea>
-        <div class="actions">
-          <button type="submit" class="primary">Find sweeteners</button>
-          <button type="button" id="text-example" class="link">Use this example</button>
+        <button type="button" id="crop-again" class="link" hidden>Adjust the crop on this photo</button>
+
+        <p id="photo-status" class="notice" role="status" hidden></p>
+        <div id="photo-result" class="result" hidden>
+          <h2 class="summary"></h2>
+          <div class="annotated">
+            <img alt="Your photo with the sweeteners marked">
+            <svg aria-hidden="true"></svg>
+          </div>
+          <ul class="sweeteners"></ul>
+          <form id="recheck-form" class="recheck">
+            <label for="photo-text">Text read from the photo. Fix any mistakes and check again.</label>
+            <textarea id="photo-text" rows="5" maxlength="5000"></textarea>
+            <div class="actions">
+              <button type="submit">Re-check</button>
+            </div>
+            <p class="highlighted" hidden></p>
+          </form>
         </div>
-      </form>
-      <p id="text-status" class="notice" role="status" hidden></p>
-      <div id="text-result" class="result" hidden>
-        <h2 class="summary"></h2>
-        <p class="highlighted"></p>
-        <ul class="sweeteners"></ul>
-      </div>
-    </section>
+      </section>
+
+      <section id="panel-text" role="tabpanel" aria-labelledby="tab-text" hidden>
+        <p class="hint">Paste or type the ingredients from any pack.</p>
+        <form id="text-form">
+          <label for="text-input" class="visually-hidden">Ingredient list</label>
+          <textarea id="text-input" rows="6" maxlength="5000"
+            placeholder="Wheat Flour, Sugar, Edible Vegetable Oil, Invert Syrup, Liquid Glucose, Milk Solids, Iodised Salt, Raising Agents (INS 500(ii))"></textarea>
+          <div class="actions">
+            <button type="submit" class="primary">Find sweeteners</button>
+            <button type="button" id="text-example" class="link">Use this example</button>
+          </div>
+        </form>
+        <p id="text-status" class="notice" role="status" hidden></p>
+        <div id="text-result" class="result" hidden>
+          <h2 class="summary"></h2>
+          <p class="highlighted"></p>
+          <ul class="sweeteners"></ul>
+        </div>
+      </section>
+    </div>
 
     <details class="how">
       <summary>

@@ -327,6 +327,55 @@ footer { margin-top: 36px; color: var(--text3); font-size: .85rem; text-align: c
   body { transition: none; }
 }
 
+/* ---------- computers: two columns, calmer type ---------- */
+
+/* "Take photo" only makes sense where there is a camera to hand: phones and tablets. */
+.pointer-only { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .touch-only { display: none !important; }
+  .pointer-only { display: inline; }
+  .gallery { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  .gallery:hover { color: var(--accent-text); filter: brightness(1.08); }
+}
+
+@media (min-width: 900px) {
+  body { font-size: 15px; }
+  .page {
+    max-width: 1160px; padding: 64px 40px 48px;
+    display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr; column-gap: 56px; align-items: start;
+  }
+  .theme-toggle { top: 22px; right: 40px; }
+  .masthead { grid-column: 1; grid-row: 1; margin-bottom: 8px; }
+  h1 { font-size: 2.5rem; }
+  .tagline { font-size: 1rem; }
+  .how { grid-column: 1; grid-row: 2; margin-top: 24px; }
+  .how summary { font-size: 1.15rem; min-height: 50px; }
+  .author { grid-column: 1; grid-row: 3; margin-top: 24px; padding: 16px; gap: 14px; }
+  .author img { width: 56px; height: 56px; }
+  .author h2 { font-size: 1.25rem; }
+  .author-role { font-size: .75rem; }
+  footer { grid-column: 1; grid-row: 4; margin-top: 20px; text-align: left; }
+  .reveal summary { padding-left: 0; }
+  .reveal p { margin-left: 0; }
+
+  .tool {
+    grid-column: 2; grid-row: 1 / -1; padding: 28px 32px 32px;
+    border: 1px solid var(--border2); border-radius: 6px; background: var(--paper);
+    box-shadow: var(--shadow);
+  }
+  .tabs { max-width: 360px; }
+  .tabs button { min-height: 38px; font-size: 13px; }
+  .hint { font-size: 1.2rem; }
+  button, .button { min-height: 42px; font-size: 12px; padding: 8px 18px; }
+  button.link { font-size: 1.2rem; }
+  .summary { font-size: 1.4rem; }
+  .highlighted { box-shadow: none; }
+  .sweeteners li span:first-child { font-size: 1rem; }
+  .example { max-width: 560px; }
+  .annotated { box-shadow: none; }
+}
+
 [hidden] { display: none !important; }
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
