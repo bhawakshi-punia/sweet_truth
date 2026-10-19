@@ -212,7 +212,12 @@ mark {
   display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
   padding: 10px 2px; border-bottom: 1px solid var(--border);
 }
-.sweeteners li span:first-child { font-family: var(--font-heading); font-size: 1.1rem; }
+.sweeteners li { flex-wrap: wrap; row-gap: 0; }
+.sweeteners li .name { font-family: var(--font-heading); font-size: 1.1rem; }
+.sweeteners .why {
+  flex-basis: 100%; margin-top: -2px;
+  font-family: var(--font-hand); font-size: 1.05rem; line-height: 1.2; color: var(--pen);
+}
 .sweeteners .confidence { color: var(--text3); font-size: .85rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 .annotated { position: relative; border: 1px solid var(--border2); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
@@ -371,7 +376,7 @@ footer { margin-top: 36px; color: var(--text3); font-size: .85rem; text-align: c
   button.link { font-size: 1.2rem; }
   .summary { font-size: 1.4rem; }
   .highlighted { box-shadow: none; }
-  .sweeteners li span:first-child { font-size: 1rem; }
+  .sweeteners li .name { font-size: 1rem; }
   .example { max-width: 560px; }
   .annotated { box-shadow: none; }
 }

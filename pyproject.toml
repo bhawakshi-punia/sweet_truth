@@ -28,6 +28,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8", "httpx2", "ruff>=0.7"]
 notebooks = ["pandas", "matplotlib", "seaborn", "jupyterlab", "pytesseract"]
+# Training and evaluating model v2 (spaCy + transformers). Not needed to run the app.
+train = ["spacy-transformers>=1.4,<1.5", "pandas", "matplotlib"]
 
 [project.scripts]
 sweet-truth = "sweet_truth.cli:app"

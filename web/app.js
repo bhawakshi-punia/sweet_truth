@@ -92,11 +92,19 @@ function renderSweeteners(list, sweeteners) {
     ...sweeteners.map((item) => {
       const row = document.createElement("li");
       const name = document.createElement("span");
+      name.className = "name";
       name.textContent = item.text;
       const confidence = document.createElement("span");
       confidence.className = "confidence";
       confidence.textContent = `${Math.round(item.confidence * 100)}% confident`;
       row.append(name, confidence);
+      if (item.reasons && item.reasons.length) {
+        // Which letter chunks made the model think "sweetener", e.g. "-ose" or "malt".
+        const why = document.createElement("span");
+        why.className = "why";
+        why.textContent = `because of: ${item.reasons.join(", ")}`;
+        row.append(why);
+      }
       return row;
     }),
   );

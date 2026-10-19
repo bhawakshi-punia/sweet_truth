@@ -14,8 +14,10 @@ from sweet_truth.errors import DetectionError
 from sweet_truth.image import detect_from_image
 from sweet_truth.schemas import Item
 from sweet_truth.text import classify_ingredients, load_resources
+from sweet_truth.training.cli import model_app
 
 app = typer.Typer(help="Detect hidden sweeteners in ingredient lists.", no_args_is_help=True)
+app.add_typer(model_app, name="model")
 console = Console()
 
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}

@@ -7,11 +7,15 @@ class Item(BaseModel):
     """One ingredient found in a piece of text."""
 
     text: str = Field(description="The ingredient as written in the input")
-    normalized: str = Field(description="The cleaned, lemmatised form the model saw")
+    normalized: str = Field(description="The cleaned form the model saw")
     start: int = Field(description="Offset of the ingredient in the input text")
     end: int = Field(description="End offset (exclusive)")
     is_sweetener: bool
     confidence: float = Field(ge=0, le=1, description="Model probability of the prediction")
+    reasons: list[str] = Field(
+        default_factory=list,
+        description='Model v2 only: letter chunks that most suggested a sweetener, e.g. "-ose"',
+    )
 
 
 class TextResult(BaseModel):

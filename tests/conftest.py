@@ -10,12 +10,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture(scope="session")
 def settings() -> Settings:
-    return Settings()
+    """Model v1: the parity and image tests check v1's exact behaviour."""
+    return Settings(model="v1")
 
 
 @pytest.fixture(scope="session")
 def resources(settings: Settings) -> Resources:
     return load_resources(settings)
+
+
+@pytest.fixture(scope="session")
+def resources_v2() -> Resources:
+    return load_resources(Settings(model="v2"))
 
 
 @pytest.fixture(scope="session")

@@ -5,6 +5,7 @@ import logging
 import re
 import threading
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any
 
 import joblib
@@ -30,10 +31,12 @@ _CONJUNCTIONS = frozenset({"and", "or"})
 class Resources:
     """Everything that is expensive to load, loaded once and shared."""
 
-    nlp: Language
+    # spaCy, for v1's lemmatising; not loaded for v2.
+    nlp: Language | None
     model: Any
     ocr: OcrEngine | None = None
     model_version: str = "unknown"
+    kind: str = "v1"
     # spaCy pipelines are not documented as thread-safe, so calls are serialised.
     nlp_lock: threading.Lock = field(default_factory=threading.Lock)
 
@@ -44,13 +47,15 @@ def load_nlp(name: str = "en_core_web_sm") -> Language:
 
 
 def load_resources(settings: Settings, *, with_ocr: bool = True) -> Resources:
-    logger.info("Loading model from %s", settings.model_path)
-    digest = hashlib.sha256(settings.model_path.read_bytes()).hexdigest()[:12]
+    path = settings.model_path
+    logger.info("Loading model %s from %s", settings.model, path)
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()[:12]
     return Resources(
-        nlp=load_nlp(settings.spacy_model),
-        model=joblib.load(settings.model_path),
+        nlp=load_nlp(settings.spacy_model) if settings.model == "v1" else None,
+        model=joblib.load(path),
         ocr=OcrEngine(settings.tessdata_dir) if with_ocr else None,
-        model_version=f"{settings.model_path.stem}@{digest}",
+        model_version=f"{path.stem}@{digest}",
+        kind=settings.model,
     )
 
 
@@ -92,6 +97,51 @@ def _strip_noise(text: str) -> tuple[str, list[int]]:
             origin.append(start)
         cursor = end
     return "".join(chars), origin
+
+
+# Top-level boundaries between ingredients when brackets are kept (model v2).
+_KEEP_BRACKETS_SEPARATOR = re.compile(r"[,;:]|\b(?:and|or)\b", re.IGNORECASE)
+_SPACES = re.compile(r"\s+")
+_NEW_WORD = re.compile(r"\s+[A-Za-z]")
+
+
+def clean_ingredient(text: str) -> str:
+    """Tidy an ingredient for model v2: one space between words, no edge punctuation."""
+    return _SPACES.sub(" ", text).strip(" .,;:")
+
+
+def split_ingredients(text: str) -> list[tuple[str, int, int]]:
+    """Split a list into ingredients without dropping bracketed text, for model v2.
+
+    Separators inside brackets are ignored, so "Sweeteners (951, 950)" stays one ingredient.
+    A word right after a closing bracket also starts a new ingredient.
+    Returns (cleaned ingredient, start, end), with offsets into `text`.
+    """
+    inside = [False] * len(text)
+    bracketed = _bracketed_spans(text)
+    for start, end in bracketed:
+        inside[start:end] = [True] * (end - start)
+    boundaries = [
+        match.span()
+        for match in _KEEP_BRACKETS_SEPARATOR.finditer(text)
+        if not inside[match.start()]
+    ]
+    # Text read from photos often loses the comma after a bracket, as in
+    # "Liquid glucose [1%] Permitted emulsifiers": a new word after a bracket starts a new one.
+    boundaries += [(end, end) for _, end in bracketed if _NEW_WORD.match(text, end)]
+    boundaries.sort()
+    pieces: list[tuple[str, int, int]] = []
+    cursor = 0
+    for start, end in [*boundaries, (len(text), len(text))]:
+        raw = text[cursor:start]
+        cleaned = clean_ingredient(raw)
+        if cleaned:
+            edge = " .,;:\t\n\r"
+            first = cursor + len(raw) - len(raw.lstrip(edge))
+            last = cursor + len(raw.rstrip(edge))
+            pieces.append((cleaned, first, last))
+        cursor = end
+    return pieces
 
 
 def _lowercase(text: str, origin: list[int]) -> tuple[str, list[int]]:
@@ -138,8 +188,93 @@ def _segments(nlp: Language, cleaned: str) -> list[tuple[str, int, int]]:
     return found
 
 
+def explain(pipeline: Any, ingredient: str, top: int = 3) -> list[str]:
+    """The parts of an ingredient that most pushed a v2 prediction towards "sweetener".
+
+    Each letter chunk's push is its TF-IDF value times the logistic regression's weight for
+    it. The strongest chunks are located in the ingredient and overlapping ones merged, so
+    "ugar" and "suga" read as "sugar"; a part a letter or two short of its word becomes the
+    word. A "-" marks a cut inside a word: "-ose" is a word ending, "malt-" a word start.
+    """
+    vectorizer = pipeline.named_steps["vectorizer"]
+    weights = pipeline.named_steps["model"].coef_[0]
+    cleaned = clean_ingredient(ingredient).lower()
+    row = vectorizer.transform([cleaned]).tocoo()
+    names = _feature_names(vectorizer)
+    pushes = sorted(
+        ((value * weights[col], names[col]) for col, value in zip(row.col, row.data, strict=True)),
+        reverse=True,
+    )
+    # Each word is padded with spaces, as the vectoriser saw it.
+    padded = " " + " ".join(cleaned.split()) + " "
+    spans: list[list[float]] = []  # [start, end, strongest push]
+    for push, chunk in pushes[: top * 3]:
+        if push <= 0 or len(chunk.strip()) < 3:
+            continue
+        found = padded.find(chunk)
+        if found < 0:
+            continue
+        start, end = found + (chunk[0] == " "), found + len(chunk) - (chunk[-1] == " ")
+        for span in spans:
+            if start <= span[1] and end >= span[0]:
+                span[0], span[1] = min(span[0], start), max(span[1], end)
+                break
+        else:
+            spans.append([start, end, push])
+    reasons = []
+    for start, end, _ in sorted(spans, key=lambda span: -span[2])[:top]:
+        start, end = int(start), int(end)
+        # A part only a letter or two short of its word reads better as the whole word.
+        word_start = padded.rfind(" ", 0, start) + 1
+        word_end = padded.find(" ", end)
+        if 0 < start - word_start <= 2:
+            start = word_start
+        if 0 < word_end - end <= 2:
+            end = word_end
+        part = padded[start:end].strip()
+        cut_before = padded[start - 1] != " " and padded[start] != " "
+        cut_after = padded[end] != " " and padded[end - 1] != " "
+        reasons.append(f"{'-' if cut_before else ''}{part}{'-' if cut_after else ''}")
+    return reasons
+
+
+@lru_cache(maxsize=4)
+def _feature_names(vectorizer: Any) -> Any:
+    return vectorizer.get_feature_names_out()
+
+
+def _classify_v2(text: str, resources: Resources) -> TextResult:
+    pieces = split_ingredients(text)
+    if not pieces:
+        return TextResult(text=text, items=[], sweeteners=[])
+    model = resources.model
+    positive = list(model.classes_).index(SWEETENER_LABEL)
+    probabilities = model.predict_proba([cleaned for cleaned, _, _ in pieces])[:, positive]
+    items = []
+    for (cleaned, start, end), probability in zip(pieces, probabilities, strict=True):
+        is_sweetener = bool(probability >= 0.5)
+        items.append(
+            Item(
+                text=text[start:end],
+                normalized=cleaned,
+                start=start,
+                end=end,
+                is_sweetener=is_sweetener,
+                confidence=float(probability if is_sweetener else 1 - probability),
+                reasons=explain(model, cleaned) if is_sweetener else [],
+            )
+        )
+    return TextResult(
+        text=text, items=items, sweeteners=[item for item in items if item.is_sweetener]
+    )
+
+
 def classify_ingredients(text: str, resources: Resources) -> TextResult:
     """Split `text` into ingredients and predict which of them are sweeteners."""
+    if resources.kind == "v2":
+        return _classify_v2(text, resources)
+    if resources.nlp is None:
+        raise RuntimeError("Model v1 needs the spaCy pipeline")
     cleaned, origin = _strip_noise(text)
     cleaned, origin = _lowercase(cleaned, origin)
     leading = len(cleaned) - len(cleaned.lstrip())

@@ -1,0 +1,47 @@
+ingredient,label,note
+allulose,1,rare sugar
+tagatose,1,rare sugar
+trehalose,1,sugar
+isomaltulose,1,sugar; looks like isomalt (in the dataset)
+coconut sugar,1,sugar
+palm sugar,1,sugar
+date syrup,1,syrup
+brown rice syrup,1,syrup
+golden syrup,1,syrup
+treacle,1,syrup
+cane sugar,1,sugar
+demerara sugar,1,sugar
+muscovado sugar,1,sugar
+icing sugar,1,sugar
+glucose syrup,1,syrup
+glucose-fructose syrup,1,syrup
+maltose,1,sugar
+barley malt syrup,1,syrup
+monk fruit extract,1,high-intensity sweetener
+thaumatin,1,high-intensity sweetener (INS 957)
+neohesperidin dihydrochalcone,1,high-intensity sweetener (INS 959)
+sodium cyclamate,1,high-intensity sweetener (INS 952)
+rebaudioside A,1,high-intensity sweetener from stevia
+sorghum syrup,1,syrup
+trisodium phosphate,0,acidity regulator; contains "sodium" like sodium saccharin
+ethyl maltol,0,flavour enhancer; contains "malt"
+glucono delta-lactone,0,acidity regulator; starts like glucose
+sodium gluconate,0,acidity regulator; starts like glucose
+glucose oxidase,0,enzyme; contains "glucose"
+sorbic acid,0,preservative; looks like sorbitol
+beta-glucan,0,fibre; contains "gluc"
+caramel colour,0,colour (INS 150); contains "caramel"
+beetroot powder,0,colour / vegetable; sugar beet is a source of sugar
+sunflower lecithin,0,emulsifier
+pea protein,0,protein
+sodium bicarbonate,0,raising agent
+vanilla extract,0,flavouring
+turmeric,0,spice
+yeast extract,0,flavour enhancer
+malic acid,0,acidity regulator
+agar,0,thickener
+sodium alginate,0,thickener
+tapioca starch,0,starch
+gellan gum,0,thickener
+fumaric acid,0,acidity regulator
+soy protein isolate,0,protein

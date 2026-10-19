@@ -19,7 +19,8 @@ def test_health(client: TestClient):
     response = client.get("/api/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
-    assert response.json()["model_version"].startswith("sweet_truth_detector@")
+    # The app uses model v2 unless told otherwise.
+    assert response.json()["model_version"].startswith("sweet_truth_v2@")
 
 
 def test_detect_text(client: TestClient):
@@ -44,7 +45,7 @@ def test_detect_image(client: TestClient, images_dir: Path):
     response = client.post("/api/detect/image", files={"image": ("label.jpg", data)})
     assert response.status_code == 200
     body = response.json()
-    assert "sugar" in [item["normalized"] for item in body["sweeteners"]]
+    assert "sugar" in [item["normalized"].lower() for item in body["sweeteners"]]
     assert body["boxes"]
     assert body["image_width"] > 0
 

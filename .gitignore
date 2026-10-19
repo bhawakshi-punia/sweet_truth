@@ -9,3 +9,8 @@ venv/
 *.egg-info/
 
 HANDOFF.md
+
+# Model v2: trained pipelines and generated training corpora
+models/v2/
+corpus/
+logs/

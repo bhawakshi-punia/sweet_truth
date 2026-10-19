@@ -73,6 +73,16 @@ def locate(item: Item, offset: int, words: list[Word], spans: list[tuple[int, in
     return boxes_around(covered)
 
 
+def ingredients_section(ocr_text: str) -> tuple[int, bool]:
+    """Where the ingredient list starts in text read from a pack, and whether a heading was found.
+
+    The list starts after the word "Ingredients". A photo cropped to just the list has no such
+    heading, in which case everything that was read is the list.
+    """
+    heading = _INGREDIENTS_HEADING.search(ocr_text)
+    return (heading.end(), True) if heading else (0, False)
+
+
 def detect_from_image(
     data: bytes, resources: Resources, max_pixels: int | None = None
 ) -> ImageResult:
@@ -87,17 +97,14 @@ def detect_from_image(
     if not ocr_text:
         raise NoTextFound("No text could be read from this image.")
 
-    # The list starts after the word "Ingredients". A photo cropped to just the
-    # list has no such heading, in which case everything that was read is checked.
-    heading = _INGREDIENTS_HEADING.search(ocr_text)
-    offset = heading.end() if heading else 0
+    offset, heading_found = ingredients_section(ocr_text)
     ingredients_text = ocr_text[offset:]
 
     result = classify_ingredients(ingredients_text, resources)
     return ImageResult(
         ocr_text=ocr_text,
         ingredients_text=ingredients_text,
-        heading_found=heading is not None,
+        heading_found=heading_found,
         items=result.items,
         sweeteners=result.sweeteners,
         boxes=[box for item in result.sweeteners for box in locate(item, offset, words, spans)],
