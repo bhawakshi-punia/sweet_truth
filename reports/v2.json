@@ -373,40 +373,11 @@
   ],
   "test_errors": [],
   "photos": {
-    "biscuits.jpg": {
-      "found": [
-        "sugar",
-        "invert sugar syrup"
-      ],
-      "missed": [],
-      "extra": []
-    },
     "children_nutrition_drink.jpg": {
       "found": [
         "malt extract",
         "sugar",
         "liquid glucose"
-      ],
-      "missed": [],
-      "extra": []
-    },
-    "corn_flakes.jpg": {
-      "found": [
-        "sugar"
-      ],
-      "missed": [],
-      "extra": []
-    },
-    "enhanced_sugarfreechocolate.jpg": {
-      "found": [
-        "maltitol"
-      ],
-      "missed": [],
-      "extra": []
-    },
-    "sugar_free_chocolate.jpg": {
-      "found": [
-        "maltitol"
       ],
       "missed": [],
       "extra": []
@@ -420,11 +391,6 @@
       "extra": []
     },
     "herb_mix.jpg": {
-      "found": [],
-      "missed": [],
-      "extra": []
-    },
-    "moong_dal.jpg": {
       "found": [],
       "missed": [],
       "extra": []

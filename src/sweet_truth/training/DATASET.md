@@ -25,10 +25,8 @@ Every list splits back exactly into the rows it was built from (`data.py`, `deco
 | Train / validation / test | The original notebook's split: `train_test_split(random_state=101)` 80 / 20, then the 20% halved | 800 / 100 / 100 lists (4,035 / 512 / 506 ingredients) |
 | Unseen ingredients | 5-fold cross-validation over the distinct rows, grouped so all spellings of an ingredient share a fold | 391 |
 | Challenge | `data/challenge_ingredients.csv`: real names not in the data, labelled by hand (24 sweeteners, 22 not) | 46 |
-| Photos | `data/photo_sweeteners.csv`: sweeteners printed on each sample photo | 8 photos, 10 sweeteners |
+| Photos | `data/photo_sweeteners.csv`: sweeteners printed on each sample photo in `images/` | 3 photos, 5 sweeteners |
 
 A test checks that the split reproduces the notebook's exact lists.
 
 **Why the extra sets:** every test ingredient also appears in the training lists, so the test set measures memory. The unseen and challenge sets measure recognition of new names.
-
-**Missing photos:** four of the eight photos are from Open Food Facts and are kept locally (`images/open_food_facts/`, git-ignored). The evaluation skips any photo it cannot find.

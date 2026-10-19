@@ -20,7 +20,7 @@ How the numbers are judged: [EVALUATION.md](EVALUATION.md). Data and method: [DA
 
 | | v1 | v2 | ELECTRA-small |
 | --- | --- | --- | --- |
-| Sample photos: found / missed / extra | 10 / 0 / 1 | **10 / 0 / 0** | 9 / 1 / 1 |
+| Sample photos (3): found / missed / extra | 5 / 0 / 0 | 5 / 0 / 0 | 4 / 1 / 1 |
 | Size | 7.2 MB | **0.2 MB** | 55 MB + PyTorch |
 
 - **Every set, every measure:** `v1.json`, `v2.json`, `electra-small.json` and the evaluation notebook.

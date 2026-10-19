@@ -18,7 +18,7 @@ From invert syrup to maltitol, sweeteners appear on labels under many unfamiliar
 
 ## Results
 
-On ingredients the model has **never seen**, v2 finds **87% of sweeteners** (precision 0.92). The original model (v1, whole words + random forest) found 38%. On the sample photos, v2 finds all 10 printed sweeteners with no false flags. It is 0.2 MB in size.
+On ingredients the model has **never seen**, v2 finds **87% of sweeteners** (precision 0.92). The original model (v1, whole words + random forest) found 38%. On the sample photos it finds all 5 printed sweeteners with no false flags, as v1 does. It is 0.2 MB in size.
 
 ![Model v2 confusion matrices](reports/figures/confusion_v2.png)
 
@@ -69,4 +69,4 @@ Python · scikit-learn · spaCy · Tesseract OCR · OpenCV · FastAPI · Typer
 - **Code:** [MIT](LICENSE).
 - **Datasets in [`data/`](data/):** [CC BY 4.0](data/LICENSE). They were curated from the [FDA list of food ingredient types](https://www.fda.gov/food/food-additives-and-gras-ingredients-information-consumers/types-food-ingredients), the [Food Products Ingredient Dataset](https://data.mendeley.com/datasets/58mfpfxksk/1) (Kumar & Singh, 2024, CC BY 4.0) and articles on sweeteners.
 - **Photos in `images/`:** taken by the author.
-- **Notebook outputs** also show a few label photos from [Open Food Facts](https://world.openfoodfacts.org/) (CC BY-SA). Those image files are not included in the repository.
+- **Ingredient text:** two typed ingredient lists in notebook 03 are quoted from [Open Food Facts](https://world.openfoodfacts.org/) product pages, which are linked there.

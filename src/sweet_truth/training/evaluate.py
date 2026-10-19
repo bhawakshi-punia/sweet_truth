@@ -115,11 +115,7 @@ def check_photo(
 
 
 def read_photos(images_dir: Path = IMAGES_DIR) -> dict[str, str]:
-    """The ingredient text read from each sample photo listed in photo_sweeteners.csv.
-
-    Photos from Open Food Facts are kept locally in images/open_food_facts/ and are not in the
-    repository; any photo that is not found is skipped.
-    """
+    """The ingredient text read from each sample photo listed in photo_sweeteners.csv."""
     from sweet_truth.config import Settings
     from sweet_truth.image import decode_image, ingredients_section, join_words
     from sweet_truth.ocr import OcrEngine
@@ -128,18 +124,7 @@ def read_photos(images_dir: Path = IMAGES_DIR) -> dict[str, str]:
     texts = {}
     try:
         for image in load_photo_expectations():
-            path = next(
-                (
-                    p
-                    for p in (images_dir / image, images_dir / "open_food_facts" / image)
-                    if p.is_file()
-                ),
-                None,
-            )
-            if path is None:
-                logger.warning("Photo %s not found, skipping it", image)
-                continue
-            words = engine.read_words(decode_image(path.read_bytes()))
+            words = engine.read_words(decode_image((images_dir / image).read_bytes()))
             ocr_text, _ = join_words(words)
             offset, _ = ingredients_section(ocr_text)
             texts[image] = ocr_text[offset:]

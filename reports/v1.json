@@ -399,42 +399,11 @@
     }
   ],
   "photos": {
-    "biscuits.jpg": {
-      "found": [
-        "sugar",
-        "invert sugar syrup"
-      ],
-      "missed": [],
-      "extra": []
-    },
     "children_nutrition_drink.jpg": {
       "found": [
         "malt extract",
         "sugar",
         "liquid glucose"
-      ],
-      "missed": [],
-      "extra": []
-    },
-    "corn_flakes.jpg": {
-      "found": [
-        "sugar"
-      ],
-      "missed": [],
-      "extra": []
-    },
-    "enhanced_sugarfreechocolate.jpg": {
-      "found": [
-        "maltitol"
-      ],
-      "missed": [],
-      "extra": [
-        "\u2018CONTAINS NATURALLY OCCURRING SUGARS\u2019"
-      ]
-    },
-    "sugar_free_chocolate.jpg": {
-      "found": [
-        "maltitol"
       ],
       "missed": [],
       "extra": []
@@ -451,15 +420,10 @@
       "found": [],
       "missed": [],
       "extra": []
-    },
-    "moong_dal.jpg": {
-      "found": [],
-      "missed": [],
-      "extra": []
     }
   },
   "size_mb": 7.2,
-  "ms_per_ingredient": 5.54,
+  "ms_per_ingredient": 5.55,
   "notebook_list_accuracy": {
     "validation": 0.95,
     "test": 0.98
