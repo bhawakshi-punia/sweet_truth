@@ -16,7 +16,7 @@ From invert syrup to maltitol, sweeteners often appear on labels under unfamilia
 
 The detector has two parts:
 
-1. **Sweetener detection from text**: each ingredient is cleaned with spaCy and regular expressions, vectorised with TF-IDF and classified as sweetener or non-sweetener by a Random Forest classifier.
+1. **Sweetener detection from text**: the list is split into single ingredients (keeping bracketed codes such as "(955)"). Each ingredient is turned into TF-IDF features over letter chunks of 1 to 6 characters and classified as sweetener or not by logistic regression. Letter chunks let it recognise names it has never seen, from parts such as *-ose*, *-itol* or *syrup*, and show why it flagged an ingredient. This is **model v2**; the original word-level random forest (**v1**) is kept for the notebooks.
 2. **OCR integration**: an image of the ingredient list is loaded with OpenCV, the text is extracted with Tesseract OCR and passed to the classifier, and detected sweeteners are marked on the image with bounding boxes.
 
 ## Data
@@ -26,12 +26,18 @@ The detector has two parts:
 
 ## Results
 
-The tuned Random Forest classifier (`n_estimators=451`, `min_samples_split=6`) reaches **97% accuracy** on the hold-out set of 100 ingredient lists, with 0.97 precision, recall and F1.
+**Model v2 (in the app).** On ingredients never seen in training, v2 finds **87%** of sweeteners, against 38% for v1, with 0.92 precision. It finds all 10 sweeteners printed on the sample photos with no false flags. It is 0.2 MB in size.
+
+![Confusion matrices for v1 and v2 on every evaluation set](reports/model_v2/figures/confusion_overview.png)
+
+Full comparison, including the transformer experiment (ELECTRA-small) and which change mattered most: [`reports/model_v2/`](reports/model_v2/README.md). How performance is judged: [EVALUATION.md](reports/model_v2/EVALUATION.md). Training data and approach: [`src/sweet_truth/training/`](src/sweet_truth/training/README.md).
+
+**Model v1 (original notebook).** The tuned random forest (`n_estimators=451`, `min_samples_split=6`) reaches **97% accuracy** on the hold-out set of 100 ingredient lists, deciding whether each list contains a sweetener. All hold-out ingredients also appear in the training lists, so this mostly measures remembering names. On unseen names v1 finds only 38% of sweeteners.
 
 | | |
 | --- | --- |
 | ![Hold-out confusion matrix](images/hold_out_confusion_matrix.png) | ![Toothpaste label with sweeteners annotated](images/toothpaste_annotated.jpg) |
-| Hold-out set confusion matrix | A toothpaste label with detected sweeteners boxed |
+| v1: hold-out set confusion matrix (lists) | A toothpaste label with detected sweeteners boxed |
 
 ## Getting started
 
@@ -69,7 +75,7 @@ uv run sweet-truth evaluate images/     # summary for every image in a folder
 
 ## Usage in Python
 
-Run the following from the repository root.
+Run the following from the repository root. These functions use model v1, as the notebooks do; the app and the `sweet-truth` command use model v2.
 
 ### Step 1: Import the module and load the model
 
@@ -113,11 +119,16 @@ The annotated image is saved next to the input, so `image.jpg` produces `image_a
 ```
 ├── data/
 │   ├── final_ingredient_dataset.csv        # individual ingredients, labelled
+│   ├── challenge_ingredients.csv           # real names not in the data, for testing
+│   ├── photo_sweeteners.csv                # sweeteners printed on each sample photo
 │   └── ingredients_sweeteners_list.csv     # synthetic ingredient lists for training
 ├── notebooks/
 │   ├── sweetener_detector_from_text.ipynb  # Part 1: build and test the text classifier
 │   ├── ocr.ipynb                           # Part 2: OCR on ingredient images
-│   └── the_sweet_truth_detector.ipynb      # Parts 1 + 2: full pipeline, image to annotated output
+│   ├── the_sweet_truth_detector.ipynb      # Parts 1 + 2: full pipeline, image to annotated output
+│   ├── model_v2_eda.ipynb                  # model v2: data exploration
+│   ├── model_v2_evaluation.ipynb           # model v2: results, mistakes, try it yourself
+│   └── model_v2_colab_train.ipynb          # model v2: training on a Colab GPU
 ├── src/
 │   ├── sweet_truth/                        # the detector as a package
 │   │   ├── text.py                         # split, clean and classify an ingredient list
@@ -125,12 +136,16 @@ The annotated image is saved next to the input, so `image.jpg` produces `image_a
 │   │   ├── image.py                        # photo to sweeteners and their positions
 │   │   ├── api.py                          # FastAPI app serving the API and the web page
 │   │   ├── cli.py                          # the sweet-truth command
+│   │   ├── classifiers.py                  # one interface for all ingredient classifiers
+│   │   ├── training/                       # model v2: data, training, evaluation
 │   │   └── config.py, schemas.py, errors.py
 │   └── module_detector.py                  # notebook-friendly functions built on the package
 ├── web/                                    # the web page (plain HTML, CSS and JavaScript)
 ├── tests/                                  # pytest suite
+├── reports/model_v2/                       # v1 vs v2 comparison: results, figures, how it is judged
 ├── models/
-│   └── sweet_truth_detector.pkl            # trained Random Forest pipeline
+│   ├── sweet_truth_v2.joblib               # model v2 (used by the app)
+│   └── sweet_truth_detector.pkl            # model v1 (used by the notebooks)
 ├── images/                                 # example inputs and annotated outputs
 ├── pyproject.toml, uv.lock                 # dependencies
 ├── Dockerfile, render.yaml                # how the detector is hosted on Render
@@ -146,11 +161,12 @@ The notebooks use paths relative to `notebooks/`, so run them from that folder. 
 
 - Text printed after the ingredient list (for example "Contains naturally occurring sugars") is read as part of the list and can be flagged.
 - Results depend on a clear, well-lit photo of the ingredient list.
-- Next: expand the sweetener alias list and explore live camera scanning.
+- Sweeteners whose names give no clue (thaumatin, cyclamate) are missed; look-alikes such as ethyl maltol are flagged.
+- Next: a curated list of sweeteners and their INS / E-numbers, more labelled ingredient names, and live camera scanning.
 
 ## Tech stack
 
-Python · scikit-learn (Random Forest, TF-IDF) · spaCy · regular expressions · Tesseract OCR · OpenCV · FastAPI · Typer · Jupyter
+Python · scikit-learn (TF-IDF, logistic regression, random forest) · spaCy · regular expressions · Tesseract OCR · OpenCV · FastAPI · Typer · Jupyter
 
 ## Image sources
 

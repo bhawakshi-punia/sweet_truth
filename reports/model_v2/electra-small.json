@@ -1,0 +1,438 @@
+{
+  "model": "electra-small (experiment)",
+  "description": "Experiment: spaCy text classifier on the google/electra-small-discriminator transformer",
+  "sets": {
+    "train": {
+      "n": 4035,
+      "tp": 521,
+      "fp": 5,
+      "fn": 0,
+      "tn": 3509,
+      "precision": 0.9905,
+      "recall": 1.0,
+      "specificity": 0.9986,
+      "npv": 1.0,
+      "f1": 0.9952,
+      "accuracy": 0.9988
+    },
+    "validation": {
+      "n": 512,
+      "tp": 51,
+      "fp": 0,
+      "fn": 0,
+      "tn": 461,
+      "precision": 1.0,
+      "recall": 1.0,
+      "specificity": 1.0,
+      "npv": 1.0,
+      "f1": 1.0,
+      "accuracy": 1.0
+    },
+    "test": {
+      "n": 506,
+      "tp": 68,
+      "fp": 0,
+      "fn": 0,
+      "tn": 438,
+      "precision": 1.0,
+      "recall": 1.0,
+      "specificity": 1.0,
+      "npv": 1.0,
+      "f1": 1.0,
+      "accuracy": 1.0
+    },
+    "unseen": {
+      "n": 391,
+      "tp": 37,
+      "fp": 7,
+      "fn": 16,
+      "tn": 331,
+      "precision": 0.8409,
+      "recall": 0.6981,
+      "specificity": 0.9793,
+      "npv": 0.9539,
+      "f1": 0.7629,
+      "accuracy": 0.9412
+    },
+    "challenge": {
+      "n": 46,
+      "tp": 14,
+      "fp": 2,
+      "fn": 10,
+      "tn": 20,
+      "precision": 0.875,
+      "recall": 0.5833,
+      "specificity": 0.9091,
+      "npv": 0.6667,
+      "f1": 0.7,
+      "accuracy": 0.7391
+    }
+  },
+  "lists_accuracy": {
+    "validation": 1.0,
+    "test": 1.0
+  },
+  "unseen_per_fold": [
+    {
+      "n": 72,
+      "tp": 5,
+      "fp": 3,
+      "fn": 2,
+      "tn": 62,
+      "precision": 0.625,
+      "recall": 0.7143,
+      "specificity": 0.9538,
+      "npv": 0.9688,
+      "f1": 0.6667,
+      "accuracy": 0.9306
+    },
+    {
+      "n": 75,
+      "tp": 11,
+      "fp": 0,
+      "fn": 5,
+      "tn": 59,
+      "precision": 1.0,
+      "recall": 0.6875,
+      "specificity": 1.0,
+      "npv": 0.9219,
+      "f1": 0.8148,
+      "accuracy": 0.9333
+    },
+    {
+      "n": 83,
+      "tp": 4,
+      "fp": 1,
+      "fn": 4,
+      "tn": 74,
+      "precision": 0.8,
+      "recall": 0.5,
+      "specificity": 0.9867,
+      "npv": 0.9487,
+      "f1": 0.6154,
+      "accuracy": 0.9398
+    },
+    {
+      "n": 78,
+      "tp": 8,
+      "fp": 3,
+      "fn": 3,
+      "tn": 64,
+      "precision": 0.7273,
+      "recall": 0.7273,
+      "specificity": 0.9552,
+      "npv": 0.9552,
+      "f1": 0.7273,
+      "accuracy": 0.9231
+    },
+    {
+      "n": 83,
+      "tp": 9,
+      "fp": 0,
+      "fn": 2,
+      "tn": 72,
+      "precision": 1.0,
+      "recall": 0.8182,
+      "specificity": 1.0,
+      "npv": 0.973,
+      "f1": 0.9,
+      "accuracy": 0.9759
+    }
+  ],
+  "challenge_predictions": [
+    {
+      "ingredient": "allulose",
+      "label": 1,
+      "probability": 0.0001
+    },
+    {
+      "ingredient": "tagatose",
+      "label": 1,
+      "probability": 0.0001
+    },
+    {
+      "ingredient": "trehalose",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "isomaltulose",
+      "label": 1,
+      "probability": 0.876
+    },
+    {
+      "ingredient": "coconut sugar",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "palm sugar",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "date syrup",
+      "label": 1,
+      "probability": 0.8977
+    },
+    {
+      "ingredient": "brown rice syrup",
+      "label": 1,
+      "probability": 0.0001
+    },
+    {
+      "ingredient": "golden syrup",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "treacle",
+      "label": 1,
+      "probability": 0.0001
+    },
+    {
+      "ingredient": "cane sugar",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "demerara sugar",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "muscovado sugar",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "icing sugar",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "glucose syrup",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "glucose-fructose syrup",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "maltose",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "barley malt syrup",
+      "label": 1,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "monk fruit extract",
+      "label": 1,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "thaumatin",
+      "label": 1,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "neohesperidin dihydrochalcone",
+      "label": 1,
+      "probability": 0.0001
+    },
+    {
+      "ingredient": "sodium cyclamate",
+      "label": 1,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "rebaudioside A",
+      "label": 1,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "sorghum syrup",
+      "label": 1,
+      "probability": 0.0001
+    },
+    {
+      "ingredient": "trisodium phosphate",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "ethyl maltol",
+      "label": 0,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "glucono delta-lactone",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "sodium gluconate",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "glucose oxidase",
+      "label": 0,
+      "probability": 0.9999
+    },
+    {
+      "ingredient": "sorbic acid",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "beta-glucan",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "caramel colour",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "beetroot powder",
+      "label": 0,
+      "probability": 0.0019
+    },
+    {
+      "ingredient": "sunflower lecithin",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "pea protein",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "sodium bicarbonate",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "vanilla extract",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "turmeric",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "yeast extract",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "malic acid",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "agar",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "sodium alginate",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "tapioca starch",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "gellan gum",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "fumaric acid",
+      "label": 0,
+      "probability": 0.0
+    },
+    {
+      "ingredient": "soy protein isolate",
+      "label": 0,
+      "probability": 0.0
+    }
+  ],
+  "test_errors": [],
+  "photos": {
+    "biscuits.jpg": {
+      "found": [
+        "sugar",
+        "invert sugar syrup"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    "children_nutrition_drink.jpg": {
+      "found": [
+        "malt extract",
+        "sugar",
+        "liquid glucose"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    "corn_flakes.jpg": {
+      "found": [
+        "sugar"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    "enhanced_sugarfreechocolate.jpg": {
+      "found": [
+        "maltitol"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    "sugar_free_chocolate.jpg": {
+      "found": [
+        "maltitol"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    "toothpaste.jpg": {
+      "found": [
+        "sorbitol"
+      ],
+      "missed": [
+        "sodium saccharin"
+      ],
+      "extra": [
+        "physician. MRP Rs. (incl,, of all taxes)"
+      ]
+    },
+    "herb_mix.jpg": {
+      "found": [],
+      "missed": [],
+      "extra": []
+    },
+    "moong_dal.jpg": {
+      "found": [],
+      "missed": [],
+      "extra": []
+    }
+  },
+  "size_mb": 55.1,
+  "ms_per_ingredient": 0.9
+}
