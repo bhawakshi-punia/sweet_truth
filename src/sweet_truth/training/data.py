@@ -101,7 +101,7 @@ def load_lists(
 
 
 def notebook_split(lists: Sequence[IngredientList]) -> Split:
-    """The 80 / 10 / 10 split of `sweetener_detector_from_text.ipynb`, list for list.
+    """The 80 / 10 / 10 split of `notebooks/01_v1_text_classifier.ipynb`, list for list.
 
     Without stratification, `train_test_split` shuffles positions only, so splitting the list
     objects gives exactly the rows the notebook's X / y split did.

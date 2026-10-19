@@ -14,3 +14,6 @@ HANDOFF.md
 models/v2/
 corpus/
 logs/
+
+# Open Food Facts photos (CC BY-SA): kept locally, not redistributed here
+images/open_food_facts/

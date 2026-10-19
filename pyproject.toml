@@ -7,6 +7,7 @@ name = "sweet-truth"
 version = "0.1.0"
 description = "Detect hidden sweeteners in packaged food ingredient lists, from text or a photo."
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.10,<3.14"
 authors = [{ name = "Bhawakshi Punia" }]
 dependencies = [

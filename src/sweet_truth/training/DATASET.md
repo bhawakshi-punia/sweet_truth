@@ -1,39 +1,34 @@
 # Dataset
 
-Model v1 and v2 learn from the same data. Nothing in the original CSVs was changed.
+v1 and v2 use the same data; the original CSVs are unchanged.
 
-## The two source files
-
-| File | Rows | What it holds |
+| File | Rows | Content |
 | --- | --- | --- |
-| [`data/final_ingredient_dataset.csv`](../../../data/final_ingredient_dataset.csv) | 392 | Single ingredients labelled `1` (sweetener) or `0` (anything else). Curated for Indian packaged foods from the FDA list of food ingredient types, a Mendeley dataset and articles on sweeteners. |
-| [`data/ingredients_sweeteners_list.csv`](../../../data/ingredients_sweeteners_list.csv) | 1,000 | Synthetic ingredient lists: 3 to 7 rows of the file above, picked at random and joined with ", ". Each row also names the sweeteners in it (`nil` if none). |
-
-### Class balance
-
-- **Ingredients:** 53 of the 392 are sweeteners (14%). Across the occurrences in the lists, 13% are sweeteners.
-- **Lists:** 491 of the 1,000 contain at least one sweetener.
-
-### Variants and one label conflict
-
-- **Variants:** some ingredients appear in several spellings, such as "Maltitol", "MALTITOL (965)" and "maltitol". Ignoring case and bracketed notes, the 392 rows are 360 distinct ingredients.
-- **Conflict:** "Maltodextrin" is labelled a sweetener but "MALTODEXTRIN" is not. This causes the few false positives every model makes on the training set. The data was left as it is, so the comparison uses exactly the original data.
-- **Multi-ingredient rows:** some rows hold more than one ingredient, such as "fruit and vegetable juices" and "RAISING NTS (INS 503(ii), ...), COCOA SOLIDS (0.7%)".
+| `data/final_ingredient_dataset.csv` | 392 | Single ingredients labelled sweetener (1) or not (0); 53 sweeteners |
+| `data/ingredients_sweeteners_list.csv` | 1,000 | Synthetic lists of 3 to 7 rows from the file above, with the sweeteners each contains; 491 contain one |
 
 ## From lists to labelled ingredients
 
-Every list splits back exactly into the rows it was built from ([`data.py`](data.py), `decompose`). Some row names contain ", " themselves, so pieces are joined until they form a known name. This gives every ingredient in every list an exact label. Model v2 is trained on those single ingredients.
+Every list splits back exactly into the rows it was built from (`data.py`, `decompose`). That gives each ingredient occurrence an exact label: 13% of them are sweeteners. v2 trains on these single ingredients.
 
-## Splits
+## Quirks of the data (left as is)
 
-| Set | What | Size |
+- **Spelling variants:** "Maltitol" and "MALTITOL (965)" are the same ingredient, so 392 rows are 360 distinct ingredients.
+- **One label conflict:** "Maltodextrin" is labelled 1 but "MALTODEXTRIN" 0. This explains the few training errors.
+- **Multi-ingredient rows:** some rows hold several ingredients, e.g. "fruit and vegetable juices".
+- **One duplicated row:** "CHOCO CREAM" appears twice.
+
+## Evaluation sets
+
+| Set | Built from | Size |
 | --- | --- | --- |
-| **Train** | The notebook's training lists, split into ingredients | 800 lists, 4,035 ingredient occurrences |
-| **Validation** | The notebook's validation lists | 100 lists, 512 ingredients |
-| **Test** | The notebook's hold-out lists | 100 lists, 506 ingredients |
-| **Unseen ingredients** | 5-fold cross-validation over the 392 rows, grouped so that all spellings of an ingredient fall in the same fold, and stratified so each fold has sweeteners | about 78 names per fold, 391 in total (the CSV lists "CHOCO CREAM" twice) |
-| **Challenge** | [`data/challenge_ingredients.csv`](../../../data/challenge_ingredients.csv): 46 real ingredient names that are not in the data, labelled by hand (24 sweeteners, 22 not, including look-alikes such as sorbic acid and ethyl maltol) | 46 |
-| **Photos** | [`data/photo_sweeteners.csv`](../../../data/photo_sweeteners.csv): the sweeteners printed on each sample photo in `images/` | 8 photos, 10 sweeteners |
+| Train / validation / test | The original notebook's split: `train_test_split(random_state=101)` 80 / 20, then the 20% halved | 800 / 100 / 100 lists (4,035 / 512 / 506 ingredients) |
+| Unseen ingredients | 5-fold cross-validation over the distinct rows, grouped so all spellings of an ingredient share a fold | 391 |
+| Challenge | `data/challenge_ingredients.csv`: real names not in the data, labelled by hand (24 sweeteners, 22 not) | 46 |
+| Photos | `data/photo_sweeteners.csv`: sweeteners printed on each sample photo | 8 photos, 10 sweeteners |
 
-- **Train, validation and test** are the exact split of the original notebook: `train_test_split(..., test_size=0.2, random_state=101)`, then the 20% halved with the same seed. A test checks that the same lists come out.
-- **Why the extra sets:** all 506 test ingredients also appear in the training lists, because every list was drawn from the same 392 rows. The test set therefore mostly measures whether a model remembers names. The unseen-ingredient folds and the challenge set measure whether it can recognise names it has never seen.
+A test checks that the split reproduces the notebook's exact lists.
+
+**Why the extra sets:** every test ingredient also appears in the training lists, so the test set measures memory. The unseen and challenge sets measure recognition of new names.
+
+**Missing photos:** four of the eight photos are from Open Food Facts and are kept locally (`images/open_food_facts/`, git-ignored). The evaluation skips any photo it cannot find.

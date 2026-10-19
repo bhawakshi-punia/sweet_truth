@@ -21,7 +21,7 @@ _NOTEBOOK_NOISE = re.compile(r"\([^()]*\)|\[[^\[\]]*\]|[.]")
 
 
 def notebook_preprocess(text: str, nlp: Language) -> str:
-    """v1's training preprocessing, as in `sweetener_detector_from_text.ipynb`.
+    """v1's training preprocessing, as in `notebooks/01_v1_text_classifier.ipynb`.
 
     Bracketed text and full stops are deleted, then lower-cased words are lemmatised and stop
     words dropped.

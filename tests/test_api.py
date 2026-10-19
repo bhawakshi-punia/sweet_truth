@@ -41,7 +41,7 @@ def test_detect_text_requires_text(client: TestClient):
 
 
 def test_detect_image(client: TestClient, images_dir: Path):
-    data = (images_dir / "corn_flakes.jpg").read_bytes()
+    data = (images_dir / "children_nutrition_drink.jpg").read_bytes()
     response = client.post("/api/detect/image", files={"image": ("label.jpg", data)})
     assert response.status_code == 200
     body = response.json()

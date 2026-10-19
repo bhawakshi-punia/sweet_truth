@@ -135,22 +135,42 @@ def _short(name: str) -> str:
 
 
 def draw_all(reports: Sequence[Mapping[str, Any]], output: Path) -> list[Path]:
-    """One figure per data set (models side by side) and an overview (sets x v1 / v2)."""
+    """The figures used in the README, the reports and the evaluation notebook.
+
+    - confusion_v2.png: the app's model on seen (test) and never-seen ingredients
+    - confusion_overview.png: v1 and v2 on every set
+    - confusion_unseen.png, confusion_challenge.png: every model on the two sets that
+      separate them
+    """
     output.mkdir(parents=True, exist_ok=True)
     written = []
-    for key, title in SET_TITLES.items():
+
+    def save(fig: plt.Figure, name: str, dpi: int = 160) -> None:
+        path = output / name
+        fig.savefig(path, dpi=dpi, facecolor=PALETTE["background"])
+        plt.close(fig)
+        written.append(path)
+
+    by_name = {_short(r["model"]): r for r in reports}
+    v2 = by_name.get("v2")
+    if v2:
+        fig, axes = _figure(1, 2)
+        confusion_panel(axes[0][0], v2["sets"]["test"], "Ingredients seen in training (test)")
+        confusion_panel(axes[0][1], v2["sets"]["unseen"], "Ingredients never seen in training")
+        fig.suptitle("Model v2", fontsize=13, color=PALETTE["ink"], fontweight="bold")
+        fig.tight_layout(rect=(0, 0, 1, 0.93))
+        save(fig, "confusion_v2.png")
+
+    for key in ("unseen", "challenge"):
         scored = [r for r in reports if r["sets"].get(key)]
         fig, axes = _figure(1, len(scored))
         for ax, report in zip(axes[0], scored, strict=True):
             confusion_panel(ax, report["sets"][key], report["model"])
-        fig.suptitle(title, fontsize=13, color=PALETTE["ink"], fontweight="bold")
+        fig.suptitle(SET_TITLES[key], fontsize=13, color=PALETTE["ink"], fontweight="bold")
         fig.tight_layout(rect=(0, 0, 1, 0.93))
-        path = output / f"confusion_{key}.png"
-        fig.savefig(path, dpi=160, facecolor=PALETTE["background"])
-        plt.close(fig)
-        written.append(path)
+        save(fig, f"confusion_{key}.png")
 
-    main = [r for r in reports if _short(r["model"]) in ("v1", "v2")]
+    main = [by_name[n] for n in ("v1", "v2") if n in by_name]
     keys = [k for k in SET_TITLES if all(r["sets"].get(k) for r in main)]
     fig, axes = _figure(len(keys), len(main))
     for row, key in zip(axes, keys, strict=True):
@@ -159,8 +179,5 @@ def draw_all(reports: Sequence[Mapping[str, Any]], output: Path) -> list[Path]:
                 ax, report["sets"][key], f"{SET_TITLES[key]} · {_short(report['model'])}"
             )
     fig.tight_layout()
-    path = output / "confusion_overview.png"
-    fig.savefig(path, dpi=130, facecolor=PALETTE["background"])
-    plt.close(fig)
-    written.append(path)
+    save(fig, "confusion_overview.png", dpi=130)
     return written
